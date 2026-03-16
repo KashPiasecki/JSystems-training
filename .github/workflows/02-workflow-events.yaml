@@ -1,9 +1,9 @@
 name: '02 – Workflow Events'
 on:
-  push:
+  # push:
   workflow_dispatch:
-  schedule:
-    - cron: '*/1 * * * *' # this cron will run every 1 minute
+  # schedule:
+  #   - cron: '*/1 * * * *'
 
 jobs:
   echo:

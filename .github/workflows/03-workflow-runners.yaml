@@ -1,0 +1,28 @@
+name: '03 - Workflow Runners'
+on:
+  workflow_dispatch:
+
+jobs:
+  ubuntu-echo:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Show the runner'
+      run: echo "This workflow is running on a ${{ runner.os }} runner."
+    - name: 'Show the machine specifications'
+      run: lscpu
+
+  windows-echo:
+    runs-on: windows-latest
+    steps:
+    - name: 'Show the runner'
+      run: echo "This workflow is running on a ${{ runner.os }} runner."
+    - name: 'Show the machine specifications'
+      run: systeminfo
+
+  mac-echo:
+    runs-on: macos-latest
+    steps:
+    - name: 'Show the runner'
+      run: echo "This workflow is running on a ${{ runner.os }} runner."
+    - name: 'Show the machine specifications'
+      run: system_profiler SPHardwareDataType
