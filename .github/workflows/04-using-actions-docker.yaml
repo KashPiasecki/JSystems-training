@@ -1,0 +1,63 @@
+name: '04 - Using Actions with Docker'
+on: 
+  workflow_dispatch:
+jobs:
+  docker-build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v6
+      # - name: 'Build Docker image'
+      #   working-directory: CWICZENIA/04-praca-z-zewnetrzymi-akcjami/docker-app
+      #   run: docker build -t nginx-app .\
+      # - name: 'Run Docker container'
+      #   run: docker run -d -p 8080:80 --name nginx-container nginx-app
+      # - name: 'Test the application'
+      #   run: |
+      #     response=$(curl -s http://localhost:8080)
+      #     echo "Response from the application: $response"
+      #     if [[ "$response" == *"Welcome to nginx!"* ]]; then
+      #       echo "Test passed: Application is running correctly."
+      #     else
+      #       echo "Test failed: Application did not return the expected response."
+      #       exit 1
+      #     fi
+      - name: Build Docker image
+        working-directory: CWICZENIA/04-praca-z-zewnetrzymi-akcjami/docker-app
+        run: |
+          set -eux
+          IMAGE_TAG=my-nginx:${GITHUB_SHA}
+          docker build -t "${IMAGE_TAG}" .
+
+          # zapisz tag do env, użyjemy go w kolejnych krokach
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
+
+      - name: Run container
+        run: |
+          set -eux
+          # uruchamiamy w tle, mapujemy port 8080 na hosta
+          CID=$(docker run -d -p 8080:80 "${IMAGE_TAG}")
+          echo "CID=${CID}" >> "$GITHUB_ENV"
+
+      - name: Wait for Nginx to be ready
+        run: |
+          set -eux
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/ >/dev/null; then
+              echo "Nginx odpowiada"; exit 0
+            fi
+            sleep 1
+          done
+          echo "Nginx nie wstał na czas" >&2
+          exit 1
+
+      - name: Test page content with curl
+        run: |
+          set -eux
+          BODY=$(curl -fsS http://localhost:8080/)
+          echo "----- PAGE BODY START -----"
+          echo "$BODY"
+          echo "------ PAGE BODY END ------"
+
+          # Sprawdzamy, że treść zawiera frazę "szkolenie github" (case-insensitive)
+          echo "$BODY" | grep -qi "szkolenie github"
