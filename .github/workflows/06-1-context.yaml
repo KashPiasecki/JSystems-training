@@ -6,6 +6,10 @@ on:
         description: 'Enter a city name'
         required: true
         default: 'Warsaw'
+
+env:
+  api_key: '7cff9972d5c98a9a47ddf6a59cb34d8e'
+
 jobs:
   weather:
     runs-on: ubuntu-latest
@@ -18,6 +22,8 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v6
       - name: 'Run weather script'
+        env:
+          api_key: '7cff9972d5c98a9a47ddf6a59cb34d8e'
         run: |
           sudo chmod +x start.sh
           ./start.sh ${{ github.event.inputs.city }} ${{ env.api_key }}

@@ -1,0 +1,52 @@
+name: '06 - 2 - Context'
+on:
+  workflow_dispatch:
+    inputs:
+      city:
+        description: 'Enter a city name'
+        required: true
+        default: 'Warsaw'
+
+env:
+  api_key: '7cff9972d5c98a9a47ddf6a59cb34d8e'
+
+jobs:
+  weather:
+    runs-on: ubuntu-latest
+    env:
+      api_key: '7cff9972d5c98a9a47ddf6a59cb34d8e'
+    defaults:
+      run:
+        working-directory: CWICZENIA/06-context/pogoda_python
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v6
+      - name: 'Run weather script'
+        id: weather_script
+        env:
+          api_key: '7cff9972d5c98a9a47ddf6a59cb34d8e'
+        run: |
+          output=$(python start.py ${{ github.event.inputs.city }} ${{ env.api_key }})
+          echo "WEATHER_ENV=$output" >> $GITHUB_ENV
+          echo "weather_env=$output" >> $GITHUB_OUTPUT
+          echo "## Weather Report" >> $GITHUB_STEP_SUMMARY
+          echo "$output" >> $GITHUB_STEP_SUMMARY
+      - name: 'Show weather script output from GITHUB_ENV'
+        run: |
+          echo "Weather script output: $WEATHER_ENV"
+      - name: 'Show weather script output from GITHUB_OUTPUT'
+        run: |
+          echo "Weather script output: ${{ steps.weather_script.outputs.weather_env }}"
+
+          
+# Variable	Purpose	Syntax
+# $GITHUB_ENV	Set env vars available to all subsequent steps in the job	echo "KEY=value" >> $GITHUB_ENV
+# $GITHUB_OUTPUT	Set step outputs readable via steps.<id>.outputs.<key> in later steps	echo "key=value" >> $GITHUB_OUTPUT
+# $GITHUB_STEP_SUMMARY	Append Markdown to the job's summary page in the Actions UI	echo "## Result" >> $GITHUB_STEP_SUMMARY
+# $GITHUB_PATH	Prepend a directory to $PATH for all subsequent steps	echo "/my/tool/bin" >> $GITHUB_PATH
+# When to use which:
+
+# $GITHUB_ENV — you want the value as a plain env var ($WEATHER_ENV) in later steps. What you're doing now. ✓
+# $GITHUB_OUTPUT — you want the value accessible as a structured output (steps.weather_script.outputs.result), especially useful when passing data between jobs via needs.<job>.outputs.<key>.
+# $GITHUB_STEP_SUMMARY — you want a human-readable summary rendered in the Actions UI (supports full Markdown, tables, etc.).
+# $GITHUB_PATH — you installed a tool in a custom location and need it on PATH for subsequent steps.
