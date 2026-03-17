@@ -1,0 +1,23 @@
+name: '06 - 1 - Context'
+on:
+  workflow_dispatch:
+    inputs:
+      city:
+        description: 'Enter a city name'
+        required: true
+        default: 'Warsaw'
+jobs:
+  weather:
+    runs-on: ubuntu-latest
+    env:
+      api_key: '7cff9972d5c98a9a47ddf6a59cb34d8e'
+    defaults:
+      run:
+        working-directory: CWICZENIA/06-context/pogoda
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v6
+      - name: 'Run weather script'
+        run: |
+          sudo chmod +x start.sh
+          ./start.sh ${{ github.event.inputs.city }} ${{ env.api_key }}
