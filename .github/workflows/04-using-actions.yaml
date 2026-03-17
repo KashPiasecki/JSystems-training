@@ -1,0 +1,19 @@
+name: 04 - Using Actions
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v6
+      - name: 'Setup Node'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: 'Create react app'
+        run: |
+          npx create-react-app --template typescript react-app
+      - name: 'Install dependencies'
+        working-directory: react-app
+        run: npm install
