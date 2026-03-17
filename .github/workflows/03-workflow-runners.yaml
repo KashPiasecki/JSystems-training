@@ -26,3 +26,11 @@ jobs:
       run: echo "This workflow is running on a ${{ runner.os }} runner."
     - name: 'Show the machine specifications'
       run: system_profiler SPHardwareDataType
+
+  self-hosted-echo:
+    runs-on: lpiasecki
+    steps:
+    - name: 'Show the runner'
+      run: echo "This workflow is running on a ${{ runner.os }} runner."
+    - name: 'Show the machine specifications'
+      run: lscpu
