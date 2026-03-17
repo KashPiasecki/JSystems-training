@@ -1,0 +1,11 @@
+name: '05 – 2 – Event Filters and Activity Types'
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Ran when PR is closed'
+        run: echo "I closed a PR, so this workflow ran. The event that triggered this workflow is ${{ github.event_name }} and the action is ${{ github.event.action }}."
