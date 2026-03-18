@@ -1,0 +1,64 @@
+name: '06 - 3 - Context - Binary'
+run-name: 'Package Python for ${{ inputs.city}}'
+on:
+  workflow_dispatch:
+    inputs:
+      city:
+        description: 'Enter a city name'
+        required: true
+        default: 'Warsaw'
+      release_tag:
+        description: 'Enter a release tag'
+        required: true
+        default: 'v0.1.0'
+
+permissions:
+  contents: write
+
+env:
+  api_key: ${{ secrets.WEATHER_API_KEY }}
+
+jobs:
+  weather-info:
+    name: 'Get weather info & Build binary for ${{ inputs.city }}'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: CWICZENIA/06-context/pogoda_python
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v6
+      - name: 'Setup python'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: 'Install build dependencies'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+      - name: 'Build binary'
+        run: pyinstaller --onefile --name pogoda start.py
+      - name: 'Show binary file'
+        run: ls -lah ./dist
+      - name: 'Create github summary from bin file'
+        working-directory: CWICZENIA/06-context/pogoda_python/dist
+        run: |
+          ./pogoda ${{ inputs.city }} ${{ secrets.WEATHER_API_KEY }} >> $GITHUB_STEP_SUMMARY
+      - name: 'Upload artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pogoda_binary_${{ inputs.city }}
+          path: CWICZENIA/06-context/pogoda_python/dist/pogoda
+      - name: 'Create release'
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: Release ${{ inputs.release_tag }} - Binary for ${{ inputs.city }}
+          draft: false
+          prerelease: false
+          files: CWICZENIA/06-context/pogoda_python/dist/pogoda
+          body: "Binary release for city: ${{ inputs.city }}"
+          

@@ -1,4 +1,4 @@
-name: '06 - 2 - Context'
+name: '06 - 2 - Context - Python'
 on:
   workflow_dispatch:
     inputs:
