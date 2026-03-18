@@ -1,0 +1,24 @@
+name: '06 - 4 PythonFlask'
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, feature/06-weather-api ]
+  pull_request: 
+    branches: [ feature/06-weather-api ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      LOCAL_IMAGE_NAME: 'weather-flask-app:test'
+      WORKDIR: 'CWICZENIA/06-context/pogoda_python_flask'
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            CWICZENIA/06-context/pogoda_python_flask
+      - name: 'LS'
+        run: |
+          sudo apt-get install -y tree
+          tree .
+      
