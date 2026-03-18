@@ -1,0 +1,67 @@
+name: '08 - 1 - Organization Variables'
+on: 
+  workflow_dispatch:
+
+env:
+  WORKFLOW_VAR: 'I am a workflow variable'
+  OVERWRITTEN_VAR: 'Workflow overritten variable'
+  UNDEFINED_VAR_WITH_DEFAULT: ${{ vars.UNDEFINED_VAR || 'I am a default value for an undefined variable' }}
+
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    env:
+      JOB_VAR: 'I am a job variable'
+      OVERWRITTEN_VAR: 'Job overwritten variable'
+    steps:
+      - name: 'Echo variables'
+        env:
+          STEP_VAR: 'I am a step variable'
+        run: |
+          echo "Workflow variable: $WORKFLOW_VAR"
+          echo "Job variable: $JOB_VAR"
+          echo "Step variable: $STEP_VAR"
+          echo "Overwritten variable: $OVERWRITTEN_VAR"
+      - name: 'Echo variables'
+        env:
+          STEP_VAR: 'I am a step variable'
+          OVERWRITTEN_VAR: 'Step overwritten variable'
+        run: |
+          echo "Workflow variable: $WORKFLOW_VAR"
+          echo "Job variable: $JOB_VAR"
+          echo "Step variable: $STEP_VAR"
+          echo "Overwritten variable: $OVERWRITTEN_VAR"
+          echo "Undefined variable with default: $UNDEFINED_VAR_WITH_DEFAULT"
+  
+  echo-prod:
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      ORG_VAR: ${{ vars.ORG_VAR }}
+      OVERWRITTEN_VAR: ${{ vars.OVERWRITTEN_VAR }}
+      TARGET_VAR: ${{ vars.TARGET_VAR }}
+      REPO_VARIABLE: ${{ vars.REPO_VARIABLE }}
+    steps:
+      - name: 'Echo environment variable'
+        run: |
+          echo "Organization variable: $ORG_VAR"
+          echo "Oerwritten by environment: $OVERWRITTEN_VAR"
+          echo "Production environment variable: $TARGET_VAR"
+          echo "Repo variable: $REPO_VARIABLE"
+
+  echo-undefined:
+    runs-on: ubuntu-latest
+    environment: stage
+    env:
+      ORG_VAR: ${{ vars.ORG_VAR }}
+      OVERWRITTEN_VAR: ${{ vars.OVERWRITTEN_VAR }}
+      TARGET_VAR: ${{ vars.TARGET_VAR }}
+      REPO_VARIABLE: ${{ vars.REPO_VARIABLE }}
+    steps:
+      - name: 'Echo environment variable'
+        run: |
+          echo "Organization variable: $ORG_VAR"
+          echo "Oerwritten by environment: $OVERWRITTEN_VAR"
+          echo "Production environment variable: $TARGET_VAR"
+          echo "Repo variable: $REPO_VARIABLE"
+          echo "Undefined variable with default: $UNDEFINED_VAR_WITH_DEFAULT"

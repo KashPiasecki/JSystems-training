@@ -1,11 +1,11 @@
 name: '07 - 1 - Expressions'
 on:
-  push:
-    branches:
-      [ main, feature/07-expressions ]
-  pull_request:
-    branches:
-      [ feature/07-expressions ]
+  # push:
+  #   branches:
+  #     [ main, feature/07-expressions ]
+  # pull_request:
+  #   branches:
+  #     [ feature/07-expressions ]
   workflow_dispatch:
 env:
   WORKDIR: 'CWICZENIA/07-expressions/pogoda_python_flask'

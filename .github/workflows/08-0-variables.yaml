@@ -1,4 +1,4 @@
-name: '08 - Variables'
+name: '08 - 0 - Variables'
 on: 
   workflow_dispatch:
 
@@ -30,3 +30,12 @@ jobs:
           echo "Job variable: $JOB_VAR"
           echo "Step variable: $STEP_VAR"
           echo "Overwritten variable: $OVERWRITTEN_VAR"
+
+# WRONG — secrets are masked in logs but ${{ }} expands them inline in YAML
+# This can accidentally expose secrets in runner process args
+# run: ./script.sh ${{ secrets.MY_SECRET }}
+
+# CORRECT — pass secrets via env, access as shell vars
+# env:
+#   MY_SECRET: ${{ secrets.MY_SECRET }}
+# run: ./script.sh "$MY_SECRET"
