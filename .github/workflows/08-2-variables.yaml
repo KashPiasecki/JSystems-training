@@ -1,0 +1,65 @@
+name: '08 - 2 - Vars - Inputs -  Env — Override Demo'
+
+on:
+  workflow_dispatch:
+    inputs:
+      DEMO_VAR:
+        description: "Opcjonalne wejście (inputs) do przysłonięcia wartości z vars"
+        required: false
+        # default: "from_input_default"
+
+env:
+  DEMO_VAR: ${{ vars.DEMO_VAR }}
+
+jobs:
+  A_workflow_env_from_vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1) Baseline — workflow env pochodzi z vars
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
+
+      - name: 2) STEP override — przysłonięcie tylko w tym kroku
+        env:
+          DEMO_VAR: "from_step_env_A"
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
+
+      - name: 3) Powrót do wartości z poziomu workflow (po kroku 2)
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
+
+  B_job_env_from_inputs:
+    runs-on: ubuntu-latest
+    env:
+      DEMO_VAR: ${{ inputs.DEMO_VAR }}
+    steps:
+      - name: 1) Job-level override — wartość z inputs
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
+
+      - name: 2) STEP override — jeszcze wyższy priorytet w danym kroku
+        env:
+          DEMO_VAR: "from_step_env_B"
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
+
+      - name: 3) Po kroku 2 wracamy do job-level env (inputs)
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
+
+  C_mix_vars_inputs_fallback:
+    runs-on: ubuntu-latest
+    env:
+      DEMO_VAR: ${{ inputs.DEMO_VAR || vars.DEMO_VAR }}
+    steps:
+      - name: 1) Mix — inputs > vars (jeśli podane)
+        run: |
+          echo "vars.DEMO_VAR = ${{ vars.DEMO_VAR }}"
+          echo "env  DEMO_VAR = $DEMO_VAR"
