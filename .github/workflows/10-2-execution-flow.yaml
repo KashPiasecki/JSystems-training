@@ -1,0 +1,36 @@
+name: '10 - 2 - Flow Control Demo'
+on: 
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment'
+        type: boolean
+        default: false
+        required: true
+  push:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 20
+jobs:
+  PR_job:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Create an output on main'
+        id: decide
+        run: |
+          if [[${{ github.ref == 'main' }}]]; then
+            echo "e2e=true" >> $GITHUB_OUTPUT
+          else
+            echo "e2e=false" >> $GITHUB_OUTPUT
+          fi
+      - name: 'Debug'
+        if: always()
+        run: |
+          echo 'BranchName: ${{ github.ref }}, EventName: ${{ github.event_name }}, ComputedFlag: ${{ steps.decide.outputs.e2e }}'
+
+
