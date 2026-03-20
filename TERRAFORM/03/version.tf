@@ -8,10 +8,10 @@ terraform {
   }
   cloud {
 
-    organization = "piotr_koska_test"
+    organization = "KashPiasecki"
 
     workspaces {
-      name = "github_action_szkolenie"
+      name = "test-workspace"
     }
   }
 }
