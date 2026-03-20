@@ -15,8 +15,10 @@ permissions:
 env:
   NODE_VERSION: 20
 jobs:
-  PR_job:
+  prep:
     if: github.event_name == 'push'
+    outputs:
+      should_run_e2e: ${{ steps.decide.outputs.e2e }} 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,5 +34,69 @@ jobs:
         if: always()
         run: |
           echo 'BranchName: ${{ github.ref }}, EventName: ${{ github.event_name }}, ComputedFlag: ${{ steps.decide.outputs.e2e }}'
-
-
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: react-app
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+      - name: 'Install deps'
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: react-app
+        run: npm ci
+      - name: 'Build'
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 20
+        working-directory: react-app
+        run: npm run build
+      - name: 'Artifact placeholder'
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: react-app
+        run: echo "I save the artifact"    
+  unit:
+    runs-on: ubuntu-latest
+    needs: build
+    if: always() && needs.build.result != 'failure'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: react-app
+      - name: 'Run tests'
+        working-directory: react-app
+        run: npm ci && npm test
+  security:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ !startsWith(github.head_ref || github.ref_name, 'feature/') }}
+    steps:
+      - name: 'Scans placeholder'
+        run: echo "I run the security scans"
+  e2e:
+    runs-on: ubuntu-latest
+    if:  ${{ needs.prep.outputs.should_run_e2e == 'true' }}
+    needs: 
+      - prep
+      - build
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: react-app
+      - name: 'Run tests'
+        working-directory: react-app
+        run: |
+          exit 1
+          npm ci && npm run e2e
+  gate_after_tests:
+    runs-on: ubuntu-latest
+    needs:
+      - unit
+      - e2e
+    if: ${{ always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure') }}
+    steps:
+      - run: echo 'do I run?'
